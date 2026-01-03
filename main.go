@@ -5,7 +5,13 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/IsaacHdezA/glox/error"
+	"github.com/IsaacHdezA/glox/scanner"
 )
+
+var hadError bool = false
+var loxError *error.LoxError
 
 func runPrompt() {
 	fmt.Println("Running REPL!")
@@ -22,6 +28,8 @@ func runPrompt() {
 		}
 
 		run(in)
+		hadError = false
+		loxError = nil
 	}
 }
 
@@ -47,15 +55,27 @@ func runFile(filename string) {
 		if !scanner.Scan() {
 			break
 		}
-		content += " "
+		content += "\n"
 	}
 
 	fmt.Printf("File %q (%d bytes):\n", filename, byteCount)
 	run(content)
+
+	if hadError {
+		os.Exit(65)
+	}
 }
 
-func run(content string) {
-	fmt.Printf("[RUN]: %q\n", content)
+func run(source string) {
+	loxScanner := scanner.NewScanner(source)
+	tokens, err := loxScanner.ScanTokens(source)
+
+	if err != nil {
+		hadError = true
+		loxError = err
+	}
+
+	fmt.Printf("[RUN]: Tokens: %q\n", tokens)
 }
 
 func main() {
