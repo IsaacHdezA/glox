@@ -9,6 +9,25 @@ import (
 	"github.com/IsaacHdezA/glox/token"
 )
 
+var _keywords = map[string]token.TokenType{
+	"and":    token.AND,
+	"class":  token.CLASS,
+	"else":   token.ELSE,
+	"false":  token.FALSE,
+	"for":    token.FOR,
+	"fun":    token.FUN,
+	"if":     token.IF,
+	"nil":    token.NIL,
+	"or":     token.OR,
+	"print":  token.PRINT,
+	"return": token.RETURN,
+	"super":  token.SUPER,
+	"this":   token.THIS,
+	"true":   token.TRUE,
+	"var":    token.VAR,
+	"while":  token.WHILE,
+}
+
 type Scanner struct {
 	source string
 	tokens []*token.Token
@@ -35,6 +54,7 @@ func (s *Scanner) ScanTokens(source string) ([]*token.Token, *error.LoxError) {
 		}
 	}
 
+	s.addToken(token.EOF)
 	return s.tokens, nil
 }
 
@@ -122,12 +142,30 @@ func (s *Scanner) scanToken() *error.LoxError {
 	default:
 		if s.isDigit(c) {
 			s.number()
+		} else if s.isAlpha(c) {
+			s.identifier()
 		} else {
 			error.NewLoxError(s.line, "", fmt.Sprintf("Unexpected character: %q.", c)).Report()
 		}
 	}
 
 	return nil
+}
+
+func (s *Scanner) identifier() {
+	for s.isAlphanumeric(s.peek()) {
+		s.advance()
+	}
+
+	lexeme := s.source[s.start:s.current]
+	var tType token.TokenType
+	tType, ok := _keywords[lexeme]
+
+	if ok {
+		s.addToken(tType)
+	} else {
+		s.addToken(token.IDENTIFIER)
+	}
 }
 
 func (s *Scanner) isDigit(c byte) bool {
@@ -203,6 +241,13 @@ func (s *Scanner) peekNext() byte {
 	return s.source[s.current+1]
 }
 
+func (s *Scanner) isAlpha(c byte) bool {
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'
+}
+
+func (s *Scanner) isAlphanumeric(c byte) bool {
+	return s.isAlpha(c) || s.isDigit(c)
+}
 func (s *Scanner) advance() byte {
 	c := s.source[s.current]
 	s.current++
