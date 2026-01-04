@@ -3,6 +3,7 @@ package scanner
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/IsaacHdezA/glox/common"
 	"github.com/IsaacHdezA/glox/error"
@@ -54,7 +55,9 @@ func (s *Scanner) ScanTokens(source string) ([]*token.Token, *error.LoxError) {
 		}
 	}
 
+	s.start = s.current
 	s.addToken(token.EOF)
+
 	return s.tokens, nil
 }
 
@@ -121,10 +124,8 @@ func (s *Scanner) scanToken() *error.LoxError {
 		}
 
 	case '/':
-		if s.match('/') {
-			for s.peek() != '\n' && !s.isAtEnd() {
-				s.advance()
-			}
+		if s.peek() == '/' || s.peek() == '*' {
+			s.comment()
 		} else {
 			s.addToken(token.SLASH)
 		}
@@ -211,6 +212,45 @@ func (s *Scanner) number() {
 	s.addTokenLiteral(token.NUMBER, number)
 }
 
+func (s *Scanner) comment() {
+	var text string
+
+	if s.match('/') {
+		for s.peek() != '\n' && !s.isAtEnd() {
+			s.advance()
+		}
+
+		text = strings.Trim(s.source[s.start+2:s.current], " \n\t\r")
+		if text != "" {
+			s.addToken(token.COMMENT)
+		}
+
+	} else if s.match('*') {
+		for !s.isAtEnd() {
+			c1, c2 := s.peek(), s.peekNext()
+
+			if c1 == '*' && c2 == '/' {
+				s.advance()
+				s.advance()
+
+				n := s.current - s.start
+
+				text := strings.Trim(s.source[s.start+2:(s.start+n)-2], " \n\t\r")
+				if text != "" {
+					s.addToken(token.COMMENT)
+				}
+
+				break
+			} else if s.isAtEnd() {
+				error.NewLoxError(s.line, "", "Unterminated multi-line comment").Report()
+				return
+			}
+
+			s.advance()
+		}
+	}
+}
+
 func (s *Scanner) match(expected byte) bool {
 	if s.isAtEnd() {
 		return false
@@ -248,6 +288,7 @@ func (s *Scanner) isAlpha(c byte) bool {
 func (s *Scanner) isAlphanumeric(c byte) bool {
 	return s.isAlpha(c) || s.isDigit(c)
 }
+
 func (s *Scanner) advance() byte {
 	c := s.source[s.current]
 	s.current++

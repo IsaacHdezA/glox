@@ -54,6 +54,9 @@ const (
 	VAR
 	WHILE
 
+	COMMENT
+	MULTI_COMMENT
+
 	EOF
 )
 
@@ -104,6 +107,9 @@ var tokenTypes = map[TokenType]string{
 	TRUE:   "TRUE",
 	VAR:    "VAR",
 	WHILE:  "WHILE",
+
+	COMMENT:       "COMMENT",
+	MULTI_COMMENT: "MULTI_COMMENT",
 
 	EOF: "EOF",
 }
