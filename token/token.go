@@ -1,24 +1,20 @@
 package token
 
-import "fmt"
+import (
+	"fmt"
 
-type Location struct {
-	_sourceOffset int
-	_tokenLength  int
-
-	line   int
-	column int
-}
+	"github.com/IsaacHdezA/glox/common"
+)
 
 type Token struct {
 	lexeme  string
 	_type   TokenType
-	literal float32
+	literal float64
 
-	location *Location
+	location *common.Location
 }
 
-func NewToken(_type TokenType, lexeme string, location *Location, literal float32) *Token {
+func NewToken(_type TokenType, lexeme string, location *common.Location, literal float64) *Token {
 	token := new(Token)
 
 	token._type = _type
@@ -30,13 +26,13 @@ func NewToken(_type TokenType, lexeme string, location *Location, literal float3
 }
 
 func (t *Token) String() string {
-	output := fmt.Sprintf("[%s %s", t._type, t.lexeme)
+	output := fmt.Sprintf("%s %s", t._type, t.lexeme)
 
-	if t._type == NUMBER {
+	switch t._type {
+	case NUMBER:
 		output += fmt.Sprintf(" %f", t.literal)
+	case STRING:
+		output += fmt.Sprintf(" %q", t.lexeme)
 	}
-
-	output += "]"
-
 	return output
 }

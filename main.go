@@ -14,10 +14,9 @@ var hadError bool = false
 var loxError *error.LoxError
 
 func runPrompt() {
-	fmt.Println("Running REPL!")
-
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Println("== Lox Interactive Runtime (C-d to exit) ==")
+
 	for {
 		fmt.Print("> ")
 		in, _ := reader.ReadString('\n')
@@ -72,10 +71,11 @@ func run(source string) {
 
 	if err != nil {
 		hadError = true
-		loxError = err
+
+		err.Report()
 	}
 
-	fmt.Printf("[RUN]: Tokens: %q\n", tokens)
+	fmt.Println("[TOKENS]:", tokens)
 }
 
 func main() {

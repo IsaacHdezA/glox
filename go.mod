@@ -8,4 +8,4 @@ replace github.com/IsaacHdezA/glox/token => ./token
 
 replace github.com/IsaacHdezA/glox/error => ./error
 
-replace github.com/IsaacHdezA/glox/error/handler => ./error
+replace github.com/IsaacHdezA/glox/common => ./common

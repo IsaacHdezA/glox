@@ -1,7 +1,6 @@
 package error
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 )
@@ -23,8 +22,5 @@ func NewLoxError(line int, where string, message string) *LoxError {
 }
 
 func (e *LoxError) Report() {
-	writer := bufio.NewWriter(os.Stderr)
-
-	out := fmt.Sprintf("[line %d] Error %s: %s", e.line, e.where, e.message)
-	writer.WriteString(out)
+	fmt.Fprintf(os.Stderr, "[line %d] Error%s: %s\n", e.line, e.where, e.message)
 }
