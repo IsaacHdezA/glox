@@ -124,7 +124,8 @@ func (s *Scanner) scanToken() *error.LoxError {
 		}
 
 	case '/':
-		if s.peek() == '/' || s.peek() == '*' {
+		nextC := s.peek()
+		if nextC == '/' || nextC == '*' {
 			s.comment()
 		} else {
 			s.addToken(token.SLASH)
@@ -216,38 +217,71 @@ func (s *Scanner) comment() {
 	var text string
 
 	if s.match('/') {
-		for s.peek() != '\n' && !s.isAtEnd() {
-			s.advance()
-		}
+		s.singleComment()
 
 		text = strings.Trim(s.source[s.start+2:s.current], " \n\t\r")
 		if text != "" {
 			s.addToken(token.COMMENT)
 		}
-
 	} else if s.match('*') {
-		for !s.isAtEnd() {
-			c1, c2 := s.peek(), s.peekNext()
+		s.multiComment()
 
-			if c1 == '*' && c2 == '/' {
-				s.advance()
-				s.advance()
-
-				n := s.current - s.start
-
-				text := strings.Trim(s.source[s.start+2:(s.start+n)-2], " \n\t\r")
-				if text != "" {
-					s.addToken(token.COMMENT)
-				}
-
-				break
-			} else if s.isAtEnd() {
-				error.NewLoxError(s.line, "", "Unterminated multi-line comment").Report()
-				return
-			}
-
-			s.advance()
+		n := s.current - s.start
+		text = strings.Trim(s.source[s.start+2:s.start+(n-2)], " \n\t\r")
+		if text != "" {
+			s.addToken(token.MULTI_COMMENT)
 		}
+	}
+}
+
+func (s *Scanner) singleComment() {
+	for s.peek() != '\n' && !s.isAtEnd() {
+		s.advance()
+	}
+}
+
+func (s *Scanner) multiComment() {
+	if s.isAtEnd() {
+		return
+	}
+
+	c1, c2 := s.peek(), s.peekNext()
+
+	if c1 == '\n' {
+		s.line++
+	}
+
+	if c1 == '*' && c2 == '/' {
+		s.advance()
+		s.advance()
+
+		return
+	}
+
+	for !s.isAtEnd() {
+		if c1 == '\n' {
+			s.line++
+		}
+
+		c1, c2 = s.peek(), s.peekNext()
+
+		if c1 == '/' && c2 == '*' {
+			s.advance()
+			s.advance()
+
+			s.multiComment()
+		} else if c1 == '*' && c2 == '/' {
+			s.advance()
+			s.advance()
+
+			return
+		} else if s.isAtEnd() {
+
+			error.NewLoxError(s.line, "", "Unterminated multi-line comment").Report()
+			return
+		}
+
+		s.advance()
 	}
 }
 

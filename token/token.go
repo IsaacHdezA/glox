@@ -27,27 +27,34 @@ func NewToken(_type TokenType, lexeme string, location *common.Location, literal
 }
 
 func (t *Token) String() string {
-	output := fmt.Sprintf("%s", t._type)
+	output := fmt.Sprintf("|%s", t._type)
 
 	switch t._type {
 	case NUMBER:
 		output += fmt.Sprintf(" %f", t.literal)
 
 	case COMMENT:
-		commentText := strings.Trim(t.lexeme[2:], "\n \r\t")
+		commentText := strings.Trim(t.lexeme[2:], " \n\r\t")
 		output += fmt.Sprintf(" %q", commentText)
 
 	case MULTI_COMMENT:
 		n := len(t.lexeme)
-		commentText := strings.Trim(t.lexeme[2:n-2], "\n \r\t")
 
+		commentText := strings.Trim(t.lexeme[2:n-2], " \n\r\t")
 		output += fmt.Sprintf(" %q", commentText)
 
 	case STRING:
 		output += fmt.Sprintf(" %s", t.lexeme)
 
 	default:
+		if t.lexeme == "" {
+			output += "|"
+			return output
+		}
+
 		output += fmt.Sprintf(" %s", t.lexeme)
 	}
+	output += "|"
+
 	return output
 }
