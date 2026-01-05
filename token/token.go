@@ -10,12 +10,12 @@ import (
 type Token struct {
 	lexeme  string
 	_type   TokenType
-	literal float64
+	literal any
 
 	location *common.Location
 }
 
-func NewToken(_type TokenType, lexeme string, location *common.Location, literal float64) *Token {
+func NewToken(_type TokenType, lexeme string, location *common.Location, literal any) *Token {
 	token := new(Token)
 
 	token._type = _type
@@ -44,7 +44,7 @@ func (t *Token) String() string {
 		output += fmt.Sprintf(" %q", commentText)
 
 	case STRING:
-		output += fmt.Sprintf(" %s", t.lexeme)
+		output += fmt.Sprintf(" %q", t.literal)
 
 	default:
 		if t.lexeme == "" {

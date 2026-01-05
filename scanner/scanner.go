@@ -190,7 +190,9 @@ func (s *Scanner) string() {
 
 	// The closing quote (")
 	s.advance()
-	s.addToken(token.STRING)
+
+	literal := s.source[s.start+1 : s.current-1]
+	s.addTokenLiteral(token.STRING, literal)
 
 }
 
@@ -339,7 +341,7 @@ func (s *Scanner) addToken(_type token.TokenType) {
 	s.tokens = append(s.tokens, token)
 }
 
-func (s *Scanner) addTokenLiteral(_type token.TokenType, literal float64) {
+func (s *Scanner) addTokenLiteral(_type token.TokenType, literal any) {
 	lexeme := s.source[s.start:s.current]
 
 	loc := common.NewLocation(s.line, 0, s.start, len(lexeme))
