@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+// Pretty Printer
 type AstPrinter struct{}
 
 func (p AstPrinter) VisitBinaryExpr(expr BinaryExpr) any {
@@ -41,4 +42,28 @@ func (p AstPrinter) parentezize(name string, exprs ...Expr) string {
 	output += ")"
 
 	return output
+}
+
+// Reverse Polish Notation Printer
+type AstPrinterRPN struct{}
+
+func (p AstPrinterRPN) VisitBinaryExpr(expr BinaryExpr) any {
+
+	return fmt.Sprintf("%s %s %s", expr.Left.Accept(p), expr.Right.Accept(p), expr.Operator.Lexeme)
+}
+
+func (p AstPrinterRPN) VisitGroupingExpr(expr GroupingExpr) any {
+	return fmt.Sprintf("%s", expr.Expression.Accept(p))
+}
+
+func (p AstPrinterRPN) VisitLiteralExpr(expr LiteralExpr) any {
+	return fmt.Sprintf("%v", expr.Value)
+}
+
+func (p AstPrinterRPN) VisitUnaryExpr(expr UnaryExpr) any {
+	return fmt.Sprintf("%v%s", expr.Right.Accept(p), expr.Operator.Lexeme)
+}
+
+func (p AstPrinterRPN) Print(expr Expr) string {
+	return expr.Accept(p).(string)
 }
