@@ -193,7 +193,6 @@ func (s *Scanner) string() {
 
 	literal := s.source[s.start+1 : s.current-1]
 	s.addTokenLiteral(token.STRING, literal)
-
 }
 
 func (s *Scanner) number() {

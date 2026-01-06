@@ -3,93 +3,93 @@ package ast
 import "github.com/IsaacHdezA/glox/token"
 
 type Expr interface {
-	Accept(visitor *ExprVisitor) any
+	Accept(visitor ExprVisitor) any
 }
 
 type ExprVisitor interface {
-	VisitBinaryExpr(expr *BinaryExpr) any
-	VisitGroupingExpr(expr *GroupingExpr) any
-	VisitLiteralExpr(expr *LiteralExpr) any
-	VisitUnaryExpr(expr *UnaryExpr) any
+	VisitBinaryExpr(expr BinaryExpr) any
+	VisitGroupingExpr(expr GroupingExpr) any
+	VisitLiteralExpr(expr LiteralExpr) any
+	VisitUnaryExpr(expr UnaryExpr) any
 }
 
 type BinaryExpr struct {
-	left     Expr
-	operator token.Token
-	right    Expr
+	Left     Expr
+	Operator token.Token
+	Right    Expr
 }
 
 func NewBinaryExpr(
-	left Expr,
-	operator token.Token,
-	right Expr,
-) *BinaryExpr {
-	result := new(BinaryExpr)
+	Left Expr,
+	Operator token.Token,
+	Right Expr,
+) BinaryExpr {
+	result := BinaryExpr{}
 
-	result.left = left
-	result.operator = operator
-	result.right = right
+	result.Left = Left
+	result.Operator = Operator
+	result.Right = Right
 
 	return result
 }
 
-func (e *BinaryExpr) Accept(visitor ExprVisitor) any {
+func (e BinaryExpr) Accept(visitor ExprVisitor) any {
 	return visitor.VisitBinaryExpr(e)
 }
 
 type GroupingExpr struct {
-	expression Expr
+	Expression Expr
 }
 
 func NewGroupingExpr(
-	expression Expr,
-) *GroupingExpr {
-	result := new(GroupingExpr)
+	Expression Expr,
+) GroupingExpr {
+	result := GroupingExpr{}
 
-	result.expression = expression
+	result.Expression = Expression
 
 	return result
 }
 
-func (e *GroupingExpr) Accept(visitor ExprVisitor) any {
+func (e GroupingExpr) Accept(visitor ExprVisitor) any {
 	return visitor.VisitGroupingExpr(e)
 }
 
 type LiteralExpr struct {
-	value any
+	Value any
 }
 
 func NewLiteralExpr(
-	value any,
-) *LiteralExpr {
-	result := new(LiteralExpr)
+	Value any,
+) LiteralExpr {
+	result := LiteralExpr{}
 
-	result.value = value
+	result.Value = Value
 
 	return result
 }
 
-func (e *LiteralExpr) Accept(visitor ExprVisitor) any {
+func (e LiteralExpr) Accept(visitor ExprVisitor) any {
 	return visitor.VisitLiteralExpr(e)
 }
 
 type UnaryExpr struct {
-	operator token.Token
-	right    Expr
+	Operator token.Token
+	Right    Expr
 }
 
 func NewUnaryExpr(
-	operator token.Token,
-	right Expr,
-) *UnaryExpr {
-	result := new(UnaryExpr)
+	Operator token.Token,
+	Right Expr,
+) UnaryExpr {
+	result := UnaryExpr{}
 
-	result.operator = operator
-	result.right = right
+	result.Operator = Operator
+	result.Right = Right
 
 	return result
 }
 
-func (e *UnaryExpr) Accept(visitor ExprVisitor) any {
+func (e UnaryExpr) Accept(visitor ExprVisitor) any {
 	return visitor.VisitUnaryExpr(e)
 }
