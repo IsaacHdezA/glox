@@ -4,15 +4,15 @@ type Location struct {
 	_sourceOffset int
 	_tokenLength  int
 
-	line   int
-	column int
+	Line   int
+	Column int
 }
 
-func NewLocation(line int, column int, _sourceOffset int, _tokenLength int) *Location {
+func NewLocation(Line int, Column int, _sourceOffset int, _tokenLength int) *Location {
 	loc := new(Location)
 
-	loc.line = line
-	loc.column = column
+	loc.Line = Line
+	loc.Column = Column
 
 	loc._sourceOffset = _sourceOffset
 	loc._tokenLength = _tokenLength
