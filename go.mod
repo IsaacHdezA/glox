@@ -6,7 +6,7 @@ replace github.com/IsaacHdezA/glox/scanner => ./scanner/
 
 replace github.com/IsaacHdezA/glox/token => ./token
 
-replace github.com/IsaacHdezA/glox/error => ./error
+replace github.com/IsaacHdezA/glox/loxerror => ./loxerror
 
 replace github.com/IsaacHdezA/glox/common => ./common
 

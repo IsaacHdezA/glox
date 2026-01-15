@@ -12,15 +12,15 @@ type Token struct {
 	Type    TokenType
 	Literal any
 
-	location *common.Location
+	Location *common.Location
 }
 
-func NewToken(Type TokenType, Lexeme string, location *common.Location, Literal any) *Token {
+func NewToken(Type TokenType, Lexeme string, Location *common.Location, Literal any) *Token {
 	token := new(Token)
 
 	token.Type = Type
 	token.Lexeme = Lexeme
-	token.location = location
+	token.Location = Location
 	token.Literal = Literal
 
 	return token

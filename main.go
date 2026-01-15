@@ -6,12 +6,13 @@ import (
 	"log"
 	"os"
 
-	"github.com/IsaacHdezA/glox/error"
+	"github.com/IsaacHdezA/glox/ast"
+	"github.com/IsaacHdezA/glox/parser"
 	"github.com/IsaacHdezA/glox/scanner"
 )
 
 var hadError bool = false
-var loxError *error.LoxError
+var loxError error
 
 func runPrompt() {
 	reader := bufio.NewReader(os.Stdin)
@@ -67,15 +68,25 @@ func runFile(filename string) {
 
 func run(source string) {
 	loxScanner := scanner.NewScanner(source)
-	tokens, err := loxScanner.ScanTokens(source)
 
+	tokens, err := loxScanner.ScanTokens(source)
 	if err != nil {
 		hadError = true
 
-		err.Report()
+		fmt.Fprintln(os.Stderr, err.Error())
 	}
 
-	fmt.Println("[TOKENS]:", tokens)
+	loxParser := parser.NewParser(tokens)
+	expression, pErr := loxParser.Parse()
+
+	if pErr != nil {
+		hadError = true
+
+		fmt.Fprintln(os.Stderr, pErr.Error())
+	}
+
+	fmt.Printf("[EXPRESSION (RPN)]: %v\n", ast.AstPrinterRPN{}.Print(expression))
+	fmt.Printf("[EXPRESSION (Pretty)]: %v\n", ast.AstPrinter{}.Print(expression))
 }
 
 func main() {

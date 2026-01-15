@@ -2,11 +2,12 @@ package scanner
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 
 	"github.com/IsaacHdezA/glox/common"
-	"github.com/IsaacHdezA/glox/error"
+	"github.com/IsaacHdezA/glox/loxerror"
 	"github.com/IsaacHdezA/glox/token"
 )
 
@@ -31,7 +32,7 @@ var _keywords = map[string]token.TokenType{
 
 type Scanner struct {
 	source string
-	tokens []*token.Token
+	tokens []token.Token
 
 	line    int
 	start   int
@@ -45,7 +46,7 @@ func NewScanner(source string) *Scanner {
 	return scanner
 }
 
-func (s *Scanner) ScanTokens(source string) ([]*token.Token, *error.LoxError) {
+func (s *Scanner) ScanTokens(source string) ([]token.Token, *loxerror.ScannerError) {
 	for !s.isAtEnd() {
 		s.start = s.current
 
@@ -61,7 +62,7 @@ func (s *Scanner) ScanTokens(source string) ([]*token.Token, *error.LoxError) {
 	return s.tokens, nil
 }
 
-func (s *Scanner) scanToken() *error.LoxError {
+func (s *Scanner) scanToken() *loxerror.ScannerError {
 	c := s.advance()
 
 	switch c {
@@ -147,7 +148,7 @@ func (s *Scanner) scanToken() *error.LoxError {
 		} else if s.isAlpha(c) {
 			s.identifier()
 		} else {
-			error.NewLoxError(s.line, "", fmt.Sprintf("Unexpected character: %q.", c)).Report()
+			fmt.Fprintln(os.Stderr, loxerror.NewScannerError(s.line, "", fmt.Sprintf("Unexpected character: %q.", c)).Error())
 		}
 	}
 
@@ -185,7 +186,7 @@ func (s *Scanner) string() {
 
 	if s.isAtEnd() {
 		str := s.source[s.start:s.current]
-		error.NewLoxError(s.line, "", fmt.Sprintf("Unterminated string: %q", str)).Report()
+		fmt.Fprintln(os.Stderr, loxerror.NewScannerError(s.line, "", fmt.Sprintf("Unterminated string: %q", str)).Error())
 	}
 
 	// The closing quote (")
@@ -278,7 +279,7 @@ func (s *Scanner) multiComment() {
 			return
 		} else if s.isAtEnd() {
 
-			error.NewLoxError(s.line, "", "Unterminated multi-line comment").Report()
+			fmt.Fprintln(os.Stderr, loxerror.NewScannerError(s.line, "", "Unterminated multi-line comment").Error())
 			return
 		}
 
@@ -337,7 +338,7 @@ func (s *Scanner) addToken(_type token.TokenType) {
 	loc := common.NewLocation(s.line, 0, s.start, len(lexeme))
 	token := token.NewToken(_type, lexeme, loc, 0)
 
-	s.tokens = append(s.tokens, token)
+	s.tokens = append(s.tokens, *token)
 }
 
 func (s *Scanner) addTokenLiteral(_type token.TokenType, literal any) {
@@ -346,7 +347,7 @@ func (s *Scanner) addTokenLiteral(_type token.TokenType, literal any) {
 	loc := common.NewLocation(s.line, 0, s.start, len(lexeme))
 	token := token.NewToken(_type, lexeme, loc, literal)
 
-	s.tokens = append(s.tokens, token)
+	s.tokens = append(s.tokens, *token)
 }
 
 func (s *Scanner) isAtEnd() bool {
